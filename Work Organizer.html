@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Organizer</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 450px; margin: auto; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
+        .lang-toggle { text-align: center; margin-bottom: 20px; }
+        .lang-toggle button { width: auto; display: inline-block; padding: 8px 15px; margin: 0 5px; font-size: 14px; background: #ddd; color: #333; }
+        .lang-toggle button.active { background: #007bff; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: left; }
+        input[type="number"], input[type="text"] { width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        .supervisor-section { border-top: 2px solid #f0f0f0; padding-top: 20px; margin-top: 10px; }
+        .btn-group { display: flex; gap: 10px; flex-direction: column; }
+        button { color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        .julio-btn { background: #007bff; }
+        .canales-btn { background: #28a745; }
+        .emoji-header { font-size: 1.1em; margin-bottom: 10px; display: block; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2 id="title">📅 Work Log</h2>
+    
+    <div class="lang-toggle">
+        <button id="enBtn" class="active" onclick="setLanguage('en')">English</button>
+        <button id="esBtn" onclick="setLanguage('es')">Español</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th id="dayCol">Day</th>
+                <th id="hoursCol">Hours</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="day-name" data-en="Monday" data-es="Lunes">Monday</td><td><input type="number" placeholder="0"></td></tr>
+            <tr><td class="day-name" data-en="Tuesday" data-es="Martes">Tuesday</td><td><input type="number" placeholder="0"></td></tr>
+            <tr><td class="day-name" data-en="Wednesday" data-es="Miércoles">Wednesday</td><td><input type="number" placeholder="0"></td></tr>
+            <tr><td class="day-name" data-en="Thursday" data-es="Jueves">Thursday</td><td><input type="number" placeholder="0"></td></tr>
+            <tr><td class="day-name" data-en="Friday" data-es="Viernes">Friday</td><td><input type="number" placeholder="0"></td></tr>
+        </tbody>
+    </table>
+
+    <div class="supervisor-section">
+        <label class="emoji-header" id="taskLabel">What's for work tomorrow? 🚜 🏗️</label>
+        <input type="text" id="workTask" placeholder="..." style="margin-bottom: 20px;">
+        
+        <div class="btn-group">
+            <button class="julio-btn" onclick="sendSMS('8317839069', 'Julio')">Send to Julio</button>
+            <button class="canales-btn" onclick="sendSMS('8318098927', 'Canales')">Send to Canales</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'en';
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('enBtn').className = lang === 'en' ? 'active' : '';
+        document.getElementById('esBtn').className = lang === 'es' ? 'active' : '';
+        
+        // Update UI Text
+        document.getElementById('title').innerText = lang === 'en' ? '📅 Work Log' : '📅 Registro de Trabajo';
+        document.getElementById('dayCol').innerText = lang === 'en' ? 'Day' : 'Día';
+        document.getElementById('hoursCol').innerText = lang === 'en' ? 'Hours' : 'Horas';
+        document.getElementById('taskLabel').innerHTML = lang === 'en' ? "What's for work tomorrow? 🚜 🏗️" : "¿Qué hay para el trabajo mañana? 🚜 🏗️";
+        
+        // Update Table Days
+        document.querySelectorAll('.day-name').forEach(el => {
+            el.innerText = el.getAttribute(`data-${lang}`);
+        });
+    }
+
+    function sendSMS(number, name) {
+        const task = document.getElementById('workTask').value;
+        let message = "";
+        
+        if (currentLang === 'en') {
+            message = `Hi ${name}, checking in for work tomorrow: ${task}`;
+        } else {
+            message = `Hola ${name}, me comunico para el trabajo de mañana: ${task}`;
+        }
+        
+        const smsUrl = `sms:${number}?body=${encodeURIComponent(message)}`;
+        
+        // Try opening in a new tab/system to fix the ERR_UNKNOWN_URL_SCHEME error
+        window.open(smsUrl, '_system');
+        
+        // Secondary fallback
+        setTimeout(() => {
+            window.location.href = smsUrl;
+        }, 300);
+    }
+</script>
+
+</body>
+</html>
