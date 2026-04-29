@@ -5,86 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Work Organizer</title>
     <style>
-        /* Mobile-First Reset */
         * { box-sizing: border-box; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; 
-            padding: 15px; 
-            background-color: #f0f2f5; 
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            margin: 0; padding: 15px; background-color: #f0f2f5; 
+            display: flex; flex-direction: column; min-height: 100vh;
         }
-
-        /* Full Screen Card */
         .card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
-            width: 100%; 
-            max-width: 600px; /* Limits size on tablets but fills phone */
-            margin: 0 auto;
-            flex-grow: 1;
+            background: white; padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 100%; 
+            max-width: 600px; margin: 0 auto; flex-grow: 1;
         }
-
-        h2 { text-align: center; color: #1a1a1a; margin-top: 0; font-size: 24px; }
-
-        /* Language Toggle - Bigger Buttons */
-        .lang-toggle { display: flex; gap: 10px; margin-bottom: 25px; }
+        h2 { text-align: center; color: #1a1a1a; margin-top: 0; }
+        .lang-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
         .lang-toggle button { 
-            flex: 1; 
-            padding: 12px; 
-            border-radius: 10px; 
-            border: 1px solid #ddd;
-            background: white;
-            font-weight: bold;
+            flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ddd;
+            background: white; font-weight: bold;
         }
         .lang-toggle button.active { background: #007bff; color: white; border-color: #007bff; }
-
-        /* Table Styling for Touch */
-        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th { text-align: left; color: #666; font-size: 14px; padding-bottom: 10px; }
-        td { padding: 12px 0; border-bottom: 1px solid #eee; }
-        
+        td { padding: 10px 0; border-bottom: 1px solid #eee; }
         input[type="number"] { 
-            width: 80px; 
-            padding: 10px; 
-            border: 1px solid #ccc; 
-            border-radius: 8px; 
-            font-size: 18px; /* Prevents auto-zoom on iPhone */
-            text-align: center;
+            width: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; 
+            font-size: 18px; text-align: center;
         }
-
-        .day-label { font-size: 18px; font-weight: 500; }
-
-        /* Input Section */
-        .task-input { 
-            width: 100%; 
-            padding: 15px; 
-            border: 2px solid #eee; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            margin-bottom: 20px;
-        }
-
-        /* Large Action Buttons */
+        .task-input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 10px; font-size: 16px; margin-bottom: 20px; }
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
-        .send-btn { 
-            padding: 18px; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: white;
-            cursor: pointer;
-            width: 100%;
-            display: block;
-        }
+        .send-btn { padding: 18px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; color: white; width: 100%; cursor: pointer; }
         .julio { background-color: #007bff; }
         .canales { background-color: #28a745; }
-        
+        .clear-btn { 
+            background: none; border: 1px solid #ff4d4d; color: #ff4d4d; 
+            margin-top: 25px; padding: 10px; border-radius: 10px; font-weight: bold; width: 100%;
+        }
         .emoji-header { font-size: 18px; font-weight: bold; margin-bottom: 10px; display: block; }
     </style>
 </head>
@@ -92,7 +46,6 @@
 
 <div class="card">
     <h2 id="title">📅 Work Log</h2>
-    
     <div class="lang-toggle">
         <button id="enBtn" class="active" onclick="setLanguage('en')">English</button>
         <button id="esBtn" onclick="setLanguage('es')">Español</button>
@@ -100,88 +53,93 @@
 
     <table>
         <thead>
-            <tr>
-                <th id="dayCol">Day</th>
-                <th id="hoursCol">Hours</th>
-            </tr>
+            <tr><th id="dayCol">Day</th><th id="hoursCol">Hours</th></tr>
         </thead>
-        <tbody id="tableBody">
-            <!-- Table rows generated by JavaScript for persistence -->
-        </tbody>
+        <tbody id="tableBody"></tbody>
     </table>
 
     <div class="supervisor-section">
         <label class="emoji-header" id="taskLabel">What's for work tomorrow? 🚜 🏗️</label>
         <input type="text" id="workTask" class="task-input" placeholder="...">
-        
         <div class="btn-group">
             <button class="send-btn julio" onclick="sendSMS('8317839069', 'Julio')">Send to Julio</button>
             <button class="send-btn canales" onclick="sendSMS('8318098927', 'Canales')">Send to Canales</button>
         </div>
+        <button class="clear-btn" id="clearBtn" onclick="clearData()">Clear All Data</button>
     </div>
 </div>
 
 <script>
     let currentLang = 'en';
     const days = [
-        { en: 'Monday', es: 'Lunes' },
-        { en: 'Tuesday', es: 'Martes' },
-        { en: 'Wednesday', es: 'Miércoles' },
-        { en: 'Thursday', es: 'Jueves' },
-        { en: 'Friday', es: 'Viernes' }
+        { en: 'Mon', es: 'Lun' },
+        { en: 'Tue', es: 'Mar' },
+        { en: 'Wed', es: 'Mie' },
+        { en: 'Thu', es: 'Jue' },
+        { en: 'Fri', es: 'Vie' },
+        { en: 'Sat', es: 'Sab' }
     ];
 
-    // Initialize Table
     const tbody = document.getElementById('tableBody');
     days.forEach((day, index) => {
-        const row = `<tr>
+        tbody.innerHTML += `<tr>
             <td class="day-label" data-en="${day.en}" data-es="${day.es}">${day.en}</td>
             <td style="text-align: right;"><input type="number" id="day-${index}" placeholder="0" oninput="saveHours()"></td>
         </tr>`;
-        tbody.innerHTML += row;
     });
 
-    // Load saved hours from phone memory
     window.onload = () => {
         days.forEach((_, i) => {
             const val = localStorage.getItem(`hours-${i}`);
             if (val) document.getElementById(`day-${i}`).value = val;
         });
+        const savedTask = localStorage.getItem('savedTask');
+        if (savedTask) document.getElementById('workTask').value = savedTask;
     };
 
     function saveHours() {
-        days.forEach((_, i) => {
-            const val = document.getElementById(`day-${i}`).value;
-            localStorage.setItem(`hours-${i}`, val);
-        });
+        days.forEach((_, i) => localStorage.setItem(`hours-${i}`, document.getElementById(`day-${i}`).value));
+        localStorage.setItem('savedTask', document.getElementById('workTask').value);
+    }
+
+    document.getElementById('workTask').oninput = saveHours;
+
+    function clearData() {
+        const msg = currentLang === 'en' ? "Clear all hours and tasks?" : "¿Borrar todas las horas y tareas?";
+        if (confirm(msg)) {
+            localStorage.clear();
+            days.forEach((_, i) => document.getElementById(`day-${i}`).value = '');
+            document.getElementById('workTask').value = '';
+        }
     }
 
     function setLanguage(lang) {
         currentLang = lang;
         document.getElementById('enBtn').classList.toggle('active', lang === 'en');
         document.getElementById('esBtn').classList.toggle('active', lang === 'es');
-        
         document.getElementById('title').innerText = lang === 'en' ? '📅 Work Log' : '📅 Registro de Trabajo';
         document.getElementById('dayCol').innerText = lang === 'en' ? 'Day' : 'Día';
         document.getElementById('hoursCol').innerText = lang === 'en' ? 'Hours' : 'Horas';
         document.getElementById('taskLabel').innerHTML = lang === 'en' ? "What's for work tomorrow? 🚜 🏗️" : "¿Qué hay para el trabajo mañana? 🚜 🏗️";
-        
-        document.querySelectorAll('.day-label').forEach(el => {
-            el.innerText = el.getAttribute(`data-${lang}`);
-        });
+        document.getElementById('clearBtn').innerText = lang === 'en' ? "Clear All Data" : "Borrar Todo";
+        document.querySelectorAll('.day-label').forEach(el => el.innerText = el.getAttribute(`data-${lang}`));
     }
 
     function sendSMS(number, name) {
         const task = document.getElementById('workTask').value;
-        const msg = currentLang === 'en' 
-            ? `Hi ${name}, checking in for work tomorrow: ${task}` 
-            : `Hola ${name}, me comunico para el trabajo de mañana: ${task}`;
+        const header = days.map(d => currentLang === 'en' ? d.en : d.es).join(' | ');
+        const status = days.map((_, i) => {
+            const val = document.getElementById(`day-${i}`).value;
+            return (val && parseFloat(val) > 0) ? '✅' : '❌';
+        }).join('    '); // Adjusted spacing for the extra day
+
+        const intro = currentLang === 'en' 
+            ? `Hi ${name}, work tomorrow: ${task}` 
+            : `Hola ${name}, trabajo mañana: ${task}`;
         
-        // This is the best format for Android Chrome
-        const smsUrl = `sms:${number}?body=${encodeURIComponent(msg)}`;
-        window.location.assign(smsUrl);
+        const fullMessage = `${intro}\n\n${header}\n${status}`;
+        window.location.assign(`sms:${number}?body=${encodeURIComponent(fullMessage)}`);
     }
 </script>
-
 </body>
 </html>
